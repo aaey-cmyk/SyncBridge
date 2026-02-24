@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SyncBridge</string>
+    <string name="server_running">SyncBridge Server Running</string>
+    <string name="server_channel_desc">Shows SyncBridge server status in notification bar</string>
+</resources>
