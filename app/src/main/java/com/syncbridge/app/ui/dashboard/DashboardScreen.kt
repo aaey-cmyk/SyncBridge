@@ -100,16 +100,20 @@ fun DashboardScreen(
 
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    FeatureChip(Icons.Default.Sms, "SMS Messages", Blue, Modifier.weight(1f))
-                    FeatureChip(Icons.Default.Phone, "Call Logs", Green, Modifier.weight(1f))
+                    FeatureChip(Icons.Default.Sms, "Messages", Blue, Modifier.weight(1f))
+                    FeatureChip(Icons.Default.Phone, "Calls", BlueAccent, Modifier.weight(1f))
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    FeatureChip(Icons.Default.Folder, "File Browser", Orange, Modifier.weight(1f))
-                    FeatureChip(Icons.Default.Notifications, "Notifications", Purple, Modifier.weight(1f))
+                    FeatureChip(Icons.Default.PhotoLibrary, "Photos (2,000)", BlueSoft, Modifier.weight(1f))
+                    FeatureChip(Icons.Default.Notifications, "Notifications", BlueDeep, Modifier.weight(1f))
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    FeatureChip(Icons.Default.Wifi, "WebSocket Live", Red, Modifier.weight(1f))
-                    FeatureChip(Icons.Default.Download, "File Download", Blue, Modifier.weight(1f))
+                    FeatureChip(Icons.Default.Apps, "Apps & Mirror", BlueMuted, Modifier.weight(1f))
+                    FeatureChip(Icons.Default.ContentCopy, "Copy & Paste", BlueAccent, Modifier.weight(1f))
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    FeatureChip(Icons.Default.WifiTethering, "Instant Hotspot", BlueSoft, Modifier.weight(1f))
+                    FeatureChip(Icons.Default.Sync, "LAN Sync Engine", Blue, Modifier.weight(1f))
                 }
             }
 
@@ -149,15 +153,15 @@ fun ServerStatusCard(
                         .size(10.dp)
                         .clip(CircleShape)
                         .background(
-                            if (appState.serverRunning) Green.copy(alpha = pulseAlpha)
-                            else Red
+                            if (appState.serverRunning) BlueAccent.copy(alpha = pulseAlpha)
+                            else BlueMuted
                         )
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
                     if (appState.serverRunning) "Server Running" else "Server Stopped",
                     fontWeight = FontWeight.SemiBold,
-                    color = if (appState.serverRunning) Green else Red,
+                    color = if (appState.serverRunning) BlueAccent else BlueMuted,
                     fontSize = 15.sp
                 )
                 Spacer(Modifier.weight(1f))
@@ -200,8 +204,8 @@ fun ServerStatusCard(
                     OutlinedButton(
                         onClick = onStop,
                         modifier = Modifier.weight(1f),
-                        border = BorderStroke(1.dp, Red),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Red)
+                        border = BorderStroke(1.dp, BlueMuted),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = BlueMuted)
                     ) {
                         Icon(Icons.Default.Stop, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(Modifier.width(6.dp))
@@ -228,8 +232,8 @@ fun ServerStatusCard(
 fun PermissionCard(onRequest: () -> Unit) {
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Red.copy(alpha = 0.1f)),
-        border = BorderStroke(1.dp, Red.copy(alpha = 0.4f)),
+        colors = CardDefaults.cardColors(containerColor = BlueMuted.copy(alpha = 0.14f)),
+        border = BorderStroke(1.dp, BlueMuted.copy(alpha = 0.45f)),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -237,9 +241,9 @@ fun PermissionCard(onRequest: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.Warning, contentDescription = null, tint = Orange, modifier = Modifier.size(24.dp))
+            Icon(Icons.Default.Warning, contentDescription = null, tint = BlueSoft, modifier = Modifier.size(24.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text("Permissions Required", fontWeight = FontWeight.SemiBold, color = Orange)
+                Text("Permissions Required", fontWeight = FontWeight.SemiBold, color = BlueSoft)
                 Text("SMS, Calls, Storage access needed to sync data", color = TextMuted, fontSize = 13.sp)
             }
             TextButton(onClick = onRequest) { Text("Grant", color = Blue) }
@@ -252,8 +256,8 @@ fun PermissionCard(onRequest: () -> Unit) {
 fun NotifAccessCard(onRequest: () -> Unit) {
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Orange.copy(alpha = 0.08f)),
-        border = BorderStroke(1.dp, Orange.copy(alpha = 0.3f)),
+        colors = CardDefaults.cardColors(containerColor = BlueDeep.copy(alpha = 0.12f)),
+        border = BorderStroke(1.dp, BlueDeep.copy(alpha = 0.35f)),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -261,9 +265,9 @@ fun NotifAccessCard(onRequest: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.Notifications, contentDescription = null, tint = Orange, modifier = Modifier.size(24.dp))
+            Icon(Icons.Default.Notifications, contentDescription = null, tint = BlueSoft, modifier = Modifier.size(24.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text("Notification Access", fontWeight = FontWeight.SemiBold, color = Orange)
+                Text("Notification Access", fontWeight = FontWeight.SemiBold, color = BlueSoft)
                 Text("Enable to sync live notifications to your browser", color = TextMuted, fontSize = 13.sp)
             }
             TextButton(onClick = onRequest) { Text("Enable", color = Blue) }
@@ -304,9 +308,9 @@ fun HowToConnectCard() {
             Text("How to Connect", fontWeight = FontWeight.Bold, fontSize = 15.sp)
 
             val steps = listOf(
-                "1" to "Make sure your phone and Mac are on the same WiFi network",
+                "1" to "Make sure your phone and desktop (Mac/PC) are on the same WiFi network",
                 "2" to "Tap Start Server above — note the IP address shown",
-                "3" to "Open Chrome on your Mac and navigate to the displayed URL",
+                "3" to "Open Chrome on your desktop and navigate to the displayed URL",
                 "4" to "Enter your credentials (default: admin / syncbridge)",
                 "5" to "Your phone data will stream live to the browser!"
             )

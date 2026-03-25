@@ -7,10 +7,10 @@ import androidx.compose.ui.graphics.Color
 
 val Blue = Color(0xFF3B82F6)
 val BlueDark = Color(0xFF2563EB)
-val Green = Color(0xFF10B981)
-val Red = Color(0xFFEF4444)
-val Orange = Color(0xFFF59E0B)
-val Purple = Color(0xFF8B5CF6)
+val BlueAccent = Color(0xFF60A5FA)
+val BlueSoft = Color(0xFF93C5FD)
+val BlueMuted = Color(0xFF1D4ED8)
+val BlueDeep = Color(0xFF1E3A8A)
 val BgDark = Color(0xFF0F172A)
 val CardDark = Color(0xFF1E293B)
 val BorderDark = Color(0xFF334155)
@@ -19,8 +19,8 @@ val TextMuted = Color(0xFF94A3B8)
 
 private val DarkColorScheme = darkColorScheme(
     primary = Blue,
-    secondary = Green,
-    tertiary = Orange,
+    secondary = BlueAccent,
+    tertiary = BlueSoft,
     background = BgDark,
     surface = CardDark,
     onPrimary = Color.White,
@@ -28,7 +28,7 @@ private val DarkColorScheme = darkColorScheme(
     onBackground = TextPrimary,
     onSurface = TextPrimary,
     outline = BorderDark,
-    error = Red
+    error = BlueMuted
 )
 
 @Composable
