@@ -3,6 +3,23 @@
 The Android companion app that turns your phone into a local HTTP + WebSocket server,
 allowing the SyncBridge Chrome web app to read your SMS, calls, files, and notifications over LAN.
 
+## Product Direction
+
+- **Theme system:** blackish-blue UI palette across surfaces, controls, and highlights.
+- **Platform compatibility:** Android companion app + browser desktop client designed to work on
+  macOS (any modern version that can run Chrome/Chromium) and Android OS devices.
+- **Cross-device sync:** optimized for linking one Android phone with one Mac/desktop session on the same LAN.
+
+## Cross-Device Sync Features
+
+- Notifications: view/manage/dismiss Android app notifications from desktop.
+- Messages: read and reply to SMS/MMS.
+- Calls: make/receive calls, with contact list and call history integration.
+- Photos: browse/share recent gallery media (up to 2,000 recent items).
+- Apps & screen mirroring: open supported Android apps on desktop; multi-app support on compatible Samsung/HONOR devices.
+- Cross-device copy/paste: move text/images between Android and desktop.
+- Instant Hotspot: connect desktop to phone hotspot flow without manual password lookup.
+
 ## Architecture
 
 ```
@@ -108,6 +125,13 @@ Authorization: Bearer <token>
 → {"files": [...]}
 ```
 
+### Recent Photos (up to 2,000)
+```http
+GET /api/photos/recent
+Authorization: Bearer <token>
+→ {"photos": [...]}
+```
+
 ### Download
 ```http
 GET /api/download?file=/storage/emulated/0/DCIM/Camera/IMG_001.jpg
@@ -120,6 +144,31 @@ Authorization: Bearer <token>
 GET /api/notifications
 Authorization: Bearer <token>
 → {"notifications": [...]}
+```
+
+```http
+POST /api/notifications/dismiss
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{"id": 123}
+→ {"ok": true, "message": "Notification dismissed"}
+```
+
+### Clipboard
+```http
+GET /api/clipboard
+Authorization: Bearer <token>
+→ {"text": "copied text", "updatedAt": 1710000000000}
+```
+
+```http
+POST /api/clipboard
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{"text":"Hello from desktop"}
+→ {"ok": true, "message": "Clipboard updated"}
 ```
 
 ### WebSocket

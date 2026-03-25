@@ -58,6 +58,7 @@ data class FileEntry(
 )
 
 data class FileListResponse(val files: List<FileEntry>)
+data class PhotoListResponse(val photos: List<FileEntry>)
 
 // ── Notifications ─────────────────────────────────────
 data class NotifEntry(
@@ -73,6 +74,16 @@ data class NotifEntry(
 )
 
 data class NotifListResponse(val notifications: List<NotifEntry>)
+data class NotifDismissRequest(val id: Int)
+data class ActionResponse(val ok: Boolean, val message: String)
+
+// ── Clipboard ─────────────────────────────────────────
+data class ClipboardResponse(
+    val text: String,
+    val updatedAt: Long = System.currentTimeMillis()
+)
+
+data class ClipboardUpdateRequest(val text: String)
 
 // ── WebSocket Events ──────────────────────────────────
 data class WsEvent(

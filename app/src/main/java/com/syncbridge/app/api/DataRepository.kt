@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.CallLog
 import android.provider.ContactsContract
+import android.provider.MediaStore
 import android.provider.Telephony
 import android.telephony.TelephonyManager
 import com.syncbridge.app.model.*
@@ -197,6 +198,49 @@ class DataRepository(private val context: Context) {
     fun getFileByPath(absolutePath: String): File? {
         val f = File(absolutePath)
         return if (f.exists() && f.isFile) f else null
+    }
+
+    fun getRecentPhotos(limit: Int = 2000): List<FileEntry> {
+        val photos = mutableListOf<FileEntry>()
+        val uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        val projection = arrayOf(
+            MediaStore.Images.Media.DATA,
+            MediaStore.Images.Media.DISPLAY_NAME,
+            MediaStore.Images.Media.DATE_MODIFIED,
+            MediaStore.Images.Media.SIZE
+        )
+
+        val cursor = context.contentResolver.query(
+            uri,
+            projection,
+            null,
+            null,
+            "${MediaStore.Images.Media.DATE_MODIFIED} DESC"
+        )
+
+        cursor?.use { c ->
+            val idxData = c.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+            val idxName = c.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
+            val idxModified = c.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_MODIFIED)
+            val idxSize = c.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE)
+
+            while (c.moveToNext() && photos.size < limit) {
+                val absolutePath = c.getString(idxData) ?: continue
+                val name = c.getString(idxName) ?: File(absolutePath).name
+                val modifiedSeconds = c.getLong(idxModified)
+                val size = c.getLong(idxSize)
+                photos.add(
+                    FileEntry(
+                        name = name,
+                        type = "image",
+                        size = formatSize(size),
+                        modified = formatDate(modifiedSeconds * 1000),
+                        path = absolutePath
+                    )
+                )
+            }
+        }
+        return photos
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

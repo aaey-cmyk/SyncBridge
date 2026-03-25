@@ -3,6 +3,8 @@ package com.syncbridge.app.service
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -32,8 +34,12 @@ import java.util.concurrent.CopyOnWriteArrayList
  *   GET  /api/sms
  *   GET  /api/calls
  *   GET  /api/files?path=...
+ *   GET  /api/photos/recent
  *   GET  /api/download?file=...
  *   GET  /api/notifications
+ *   POST /api/notifications/dismiss
+ *   GET  /api/clipboard
+ *   POST /api/clipboard
  *   WS   /ws  (WebSocket upgrade)
  */
 class BridgeServerService : Service() {
@@ -47,6 +53,8 @@ class BridgeServerService : Service() {
         // Broadcast from this service so the UI can read the IP:port
         const val ACTION_SERVER_STARTED = "com.syncbridge.SERVER_STARTED"
         const val EXTRA_ADDRESS = "address"
+        @Volatile var instance: BridgeServerService? = null
+            private set
 
         fun pushEvent(ctx: Context, event: WsEvent) {
             val gson = Gson()
@@ -70,7 +78,13 @@ class BridgeServerService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
         repo = DataRepository(this)
+    }
+
+    override fun onDestroy() {
+        instance = null
+        super.onDestroy()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -159,8 +173,12 @@ class BridgeServerService : Service() {
                 method == "GET"  && path == "/api/sms"        -> handleSms(socket)
                 method == "GET"  && path == "/api/calls"      -> handleCalls(socket)
                 method == "GET"  && path == "/api/files"      -> handleFiles(socket, params["path"] ?: "")
+                method == "GET"  && path == "/api/photos/recent" -> handleRecentPhotos(socket)
                 method == "GET"  && path == "/api/download"   -> handleDownload(socket, params["file"] ?: "")
                 method == "GET"  && path == "/api/notifications" -> handleNotifications(socket)
+                method == "POST" && path == "/api/notifications/dismiss" -> handleDismissNotification(socket, body)
+                method == "GET"  && path == "/api/clipboard" -> handleClipboardGet(socket)
+                method == "POST" && path == "/api/clipboard" -> handleClipboardSet(socket, body)
                 method == "GET"  && path == "/api/device"     -> handleDevice(socket)
                 else -> sendJson(socket, 404, """{"error":"Not found"}""")
             }
@@ -211,6 +229,11 @@ class BridgeServerService : Service() {
         sendJson(socket, 200, gson.toJson(FileListResponse(files)))
     }
 
+    private fun handleRecentPhotos(socket: Socket) {
+        val photos = repo.getRecentPhotos(limit = 2000)
+        sendJson(socket, 200, gson.toJson(PhotoListResponse(photos)))
+    }
+
     private fun handleDownload(socket: Socket, filePath: String) {
         val decoded = URLDecoder.decode(filePath, "UTF-8")
         val file = repo.getFileByPath(decoded)
@@ -235,6 +258,34 @@ class BridgeServerService : Service() {
 
     private fun handleNotifications(socket: Socket) {
         sendJson(socket, 200, gson.toJson(NotifListResponse(notifications.toList())))
+    }
+
+    private fun handleDismissNotification(socket: Socket, body: String) {
+        val req = runCatching { gson.fromJson(body, NotifDismissRequest::class.java) }.getOrNull()
+            ?: run { sendJson(socket, 400, """{"error":"Bad request"}"""); return }
+
+        val removed = notifications.removeIf { it.id == req.id }
+        val response = if (removed) {
+            ActionResponse(ok = true, message = "Notification dismissed")
+        } else {
+            ActionResponse(ok = false, message = "Notification not found")
+        }
+        sendJson(socket, if (removed) 200 else 404, gson.toJson(response))
+    }
+
+    private fun handleClipboardGet(socket: Socket) {
+        val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val text = cm.primaryClip?.getItemAt(0)?.coerceToText(this)?.toString().orEmpty()
+        sendJson(socket, 200, gson.toJson(ClipboardResponse(text = text)))
+    }
+
+    private fun handleClipboardSet(socket: Socket, body: String) {
+        val req = runCatching { gson.fromJson(body, ClipboardUpdateRequest::class.java) }.getOrNull()
+            ?: run { sendJson(socket, 400, """{"error":"Bad request"}"""); return }
+
+        val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        cm.setPrimaryClip(ClipData.newPlainText("SyncBridge", req.text))
+        sendJson(socket, 200, gson.toJson(ActionResponse(ok = true, message = "Clipboard updated")))
     }
 
     // ── WebSocket ─────────────────────────────────────────────────────────────

@@ -1,7 +1,5 @@
 package com.syncbridge.app.service
 
-import android.content.Intent
-import android.graphics.drawable.BitmapDrawable
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
@@ -76,13 +74,6 @@ class NotificationListenerService : NotificationListenerService() {
     }
 
     private fun getBridgeService(): BridgeServerService? {
-        // Use a static reference set by BridgeServerService
         return BridgeServerService.instance
     }
 }
-
-// Add to BridgeServerService companion object for reference
-private val BridgeServerService.Companion.instance: BridgeServerService?
-    get() = _instance
-
-private var _instance: BridgeServerService? = null
