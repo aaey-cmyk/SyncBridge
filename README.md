@@ -125,6 +125,13 @@ Authorization: Bearer <token>
 → {"files": [...]}
 ```
 
+### Recent Photos (up to 2,000)
+```http
+GET /api/photos/recent
+Authorization: Bearer <token>
+→ {"photos": [...]}
+```
+
 ### Download
 ```http
 GET /api/download?file=/storage/emulated/0/DCIM/Camera/IMG_001.jpg
@@ -137,6 +144,31 @@ Authorization: Bearer <token>
 GET /api/notifications
 Authorization: Bearer <token>
 → {"notifications": [...]}
+```
+
+```http
+POST /api/notifications/dismiss
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{"id": 123}
+→ {"ok": true, "message": "Notification dismissed"}
+```
+
+### Clipboard
+```http
+GET /api/clipboard
+Authorization: Bearer <token>
+→ {"text": "copied text", "updatedAt": 1710000000000}
+```
+
+```http
+POST /api/clipboard
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{"text":"Hello from desktop"}
+→ {"ok": true, "message": "Clipboard updated"}
 ```
 
 ### WebSocket
